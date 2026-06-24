@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E1013">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Krachtboek">
+<title>Krachtboek</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+:root{--bg:#0F1228;--card:#181C38;--card2:#20254A;--line:#2B315C;--chalk:#EEF0FF;--text:#D2D6F0;--muted:#9094C0;--faint:#61648C;--train:#34E2C0;--train-soft:rgba(52,226,192,.15);--fuel:#9D86FF;--fuel-soft:rgba(157,134,255,.15);--danger:#FF6B81;--in:#0B0E20;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{font-family:'Quicksand',system-ui,-apple-system,sans-serif;color:var(--text);background-color:var(--bg);background-image:radial-gradient(820px 480px at 12% 0%, rgba(52,226,192,.12), transparent 58%),radial-gradient(820px 560px at 100% 100%, rgba(157,134,255,.15), transparent 55%);background-repeat:no-repeat;-webkit-font-smoothing:antialiased;}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;}
+button{font-family:inherit;} input{font-family:inherit;}
+::-webkit-scrollbar{width:0;height:0;}
+.press{transition:transform .08s ease, opacity .15s ease;}
+.press:active{transform:scale(.97);opacity:.85;}
+.press:focus-visible{outline:2px solid var(--train);outline-offset:2px;border-radius:8px;}
+.wrap{min-height:100dvh;display:flex;flex-direction:column;}
+header{position:sticky;top:0;z-index:20;background:rgba(15,18,40,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:calc(14px + env(safe-area-inset-top)) 18px 12px;display:flex;align-items:center;justify-content:space-between;}
+.brand{font-family:'Fredoka',system-ui,sans-serif;font-size:22px;font-weight:700;color:var(--chalk);letter-spacing:0;line-height:1;}
+.brand b{font-weight:700;background:linear-gradient(90deg,#34E2C0,#9D86FF,#FF7EC7);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.tag{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-top:4px;}
+.icon-btn{background:var(--card);border:1px solid var(--line);border-radius:11px;width:40px;height:40px;display:grid;place-items:center;color:var(--muted);cursor:pointer;}
+main{flex:1;overflow-y:auto;padding:18px 18px 100px;max-width:560px;width:100%;margin:0 auto;}
+.stack{display:flex;flex-direction:column;gap:18px;}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:rgba(15,18,40,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom));}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;cursor:pointer;padding:6px 0;}
+.nav-btn span{font-size:11px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;}
+.section-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600;}
+.empty{border:1px dashed var(--line);border-radius:14px;padding:22px 16px;text-align:center;color:var(--muted);font-size:13.5px;}
+.gauge-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.gauge{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px 14px;}
+.gauge-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.gauge-val{display:flex;align-items:baseline;gap:4px;}
+.num-big{font-size:24px;font-weight:600;color:var(--chalk);line-height:1;}
+.num-target{font-size:13px;color:var(--faint);}
+.bar{height:6px;background:var(--in);border-radius:99px;overflow:hidden;margin:10px 0 7px;}
+.bar-fill{height:100%;border-radius:99px;transition:width .35s ease;}
+.gauge-rem{font-size:11px;}
+.pips{display:flex;gap:5px;}
+.pip{width:10px;height:10px;border-radius:99px;background:var(--line);transition:background .3s ease;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 16px;border-radius:11px;border:none;font-weight:600;font-size:14px;cursor:pointer;color:#10130F;}
+.btn.full{width:100%;} .btn.sm{padding:8px 12px;font-size:13px;}
+.btn-train{background:linear-gradient(135deg,#3DEBCB,#2FC9E0);box-shadow:0 4px 20px rgba(52,226,192,.30);} .btn-fuel{background:linear-gradient(135deg,#A78BFF,#7C7CFF);box-shadow:0 4px 20px rgba(157,134,255,.30);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text);}
+.linkbtn{background:none;border:none;color:var(--train);font-weight:600;font-size:12.5px;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:5px;}
+.linkbtn.faint{color:var(--faint);} .linkbtn.fuel{color:var(--fuel);}
+.field{display:flex;align-items:center;background:var(--in);border:1px solid var(--line);border-radius:10px;padding:0 10px;flex:1;min-width:0;}
+.field input{width:100%;min-width:0;background:none;border:none;outline:none;color:var(--chalk);font-size:15px;padding:10px 0;}
+.field .suffix{font-size:12px;padding-left:4px;}
+.text-input{width:100%;background:var(--in);border:1px solid var(--line);border-radius:10px;color:var(--chalk);padding:12px;font-size:15px;outline:none;}
+input::placeholder{color:#5a6068;}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+input[type=number]{-moz-appearance:textfield;}
+.lbl{font-size:11px;color:var(--faint);margin-bottom:5px;padding-left:2px;}
+.daycard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;text-align:left;width:100%;color:var(--chalk);}
+.badge{font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;font-weight:700;background:var(--in);color:var(--muted);border:1px solid var(--line);}
+.iconlink{background:none;border:none;color:var(--faint);cursor:pointer;padding:6px;display:inline-flex;}
+.row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;}
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;}
+.sheet{background:var(--bg);border-top:1px solid var(--line);border-radius:22px 22px 0 0;width:100%;max-width:560px;max-height:88dvh;overflow-y:auto;padding:20px 18px calc(20px + env(safe-area-inset-bottom));animation:up .25s ease;}
+@keyframes up{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.datebar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 8px;}
+.arrow{background:none;border:none;cursor:pointer;color:var(--text);padding:8px 12px;display:grid;place-items:center;}
+.arrow.disabled{opacity:.3;cursor:default;}
+.target-hint{font-size:11.5px;color:var(--muted);margin-bottom:10px;}
+.last-line{font-size:11.5px;color:var(--train);margin-bottom:12px;}
+.set-head{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.set-head .sh{flex:1;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-align:center;}
+.set-head .sp{width:24px;}
+.set-row{display:flex;align-items:center;gap:6px;margin-bottom:7px;}
+.set-row .setnum{width:24px;font-size:13px;color:var(--faint);text-align:center;}
+.set-row .field{padding:0 6px;}
+.set-row .field input{font-size:14px;padding:9px 0;text-align:center;}
+.pday{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;}
+.pname{width:100%;background:var(--in);border:1px solid var(--line);border-radius:9px;color:var(--chalk);font-size:15px;font-weight:700;padding:9px 10px;outline:none;}
+.pex{display:flex;align-items:center;gap:6px;margin-top:8px;}
+.pex .nm{flex:1;background:var(--in);border:1px solid var(--line);border-radius:9px;color:var(--text);font-size:14px;padding:8px 9px;outline:none;min-width:0;}
+.mini{width:46px;flex:none;}
+.mini input{text-align:center;padding:8px 0;font-size:13px;}
+.tchip{font-size:12px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;}
+.tchip.on{background:var(--fuel-soft);color:var(--fuel);border-color:transparent;}
+.ico{display:inline-flex;}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;}}
+</style>
+</head>
+<body>
+<div id="app" class="wrap"></div>
+<input type="file" id="import-file" accept="application/json,.json" style="display:none">
+<script>
+"use strict";
+
+const PATHS={
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  dumbbell:'<path d="M6 5v14M18 5v14M3 8v8M21 8v8M6 12h12"/>',
+  food:'<path d="M5 3v8a2 2 0 0 0 4 0V3M7 11v10M17 3c-1.6 0-2.6 2.2-2.6 5.2 0 2.6 1.1 3.8 2.6 3.8s2.6-1.2 2.6-3.8C19.6 5.2 18.6 3 17 3zM17 16v5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l1.8 1.8M17.2 17.2L19 19M19 5l-1.8 1.8M6.8 17.2L5 19"/>',
+  cl:'<path d="M15 6l-6 6 6 6"/>', cr:'<path d="M9 6l6 6-6 6"/>', cd:'<path d="M6 9l6 6 6-6"/>', cu:'<path d="M6 15l6-6 6 6"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>', check:'<path d="M5 12l5 5 9-11"/>',
+  flame:'<path d="M12 3c2 4 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 3 3 0-3-2-4 0-8z"/>',
+  save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7M8 21v-6h8v6"/>',
+  pencil:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>',
+  download:'<path d="M12 3v12M7 11l5 5 5-5M5 21h14"/>', upload:'<path d="M12 21V9M7 13l5-5 5 5M5 3h14"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>',
+  scale:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9.5a3 3 0 0 1 6 0"/><path d="M12 9.5l1.6-1.2"/>'
+};
+function icon(name,size,color){ size=size||20; const c=color?'color:'+color+';':''; const fill=name==='star'?'currentColor':'none'; return '<span class="ico" style="'+c+'width:'+size+'px;height:'+size+'px"><svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="'+fill+'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(PATHS[name]||'')+'</svg></span>'; }
+
+let _uid=Date.now();
+function uid(){ return ++_uid; }
+
+function seedProgram(){
+  const days=[
+    ['Lower 1','Lower',[['RDL',3,4],['Hip thrust',3,3],['Leg extension',4,3],['Calf raise',4,4]]],
+    ['Upper 1','Upper',[['Machine chest press',4,4],['T-bar row',3,3],['Shoulder press',4,3],['Cable pulldown',4,3],['Single-arm extension',4,4]]],
+    ['Lower 2','Lower',[['Pendulum squat',4,4],['Leg extension',3,4],['Calf raise',3,3],['Hip thrust',4,3],['Leg curl',3,4],['Cable side kick',2,4]]],
+    ['Upper 2','Upper',[['Incline DB chest press',3,4],['Unilateral cable row',3,3],['Cable chest fly',4,3],['Shoulder press',2,4],['Biceps rope',4,4]]],
+    ['Lower 3','Lower',[]]
+  ];
+  return days.map(d=>({id:uid(),name:d[0],type:d[1],exercises:d[2].map(e=>({id:uid(),name:e[0],sets:e[1],rir:e[2]}))}));
+}
+function seedFoods(){ return [
+  {id:uid(),name:'Magere kwark',unit:'100g',per:{calories:57,protein:10,carbs:4,fat:0.2}},
+  {id:uid(),name:'Ei (groot)',unit:'stuk',per:{calories:74,protein:6,carbs:0.6,fat:5.3}},
+  {id:uid(),name:'Kipfilet',unit:'100g',per:{calories:120,protein:23,carbs:0,fat:2.5}}
+]; }
+
+const KEY='krachtboek_v1';
+const DEFAULTS={
+  targets:{calories:2000,protein:160,carbs:180,fat:65}, weekly:{lower:3,upper:2},
+  nutrition:{}, workouts:[], foodLib:[], foods:null, weights:{}, program:seedProgram(),
+  tab:'vandaag', foodDate:null, weightDate:null, activeWorkout:null
+};
+function load(){ try{ const raw=localStorage.getItem(KEY); if(raw) return Object.assign({},DEFAULTS,JSON.parse(raw)); }catch(e){} return JSON.parse(JSON.stringify(DEFAULTS)); }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+let S=load();
+if(!S.foodDate) S.foodDate=todayStr();
+if(!S.weightDate) S.weightDate=todayStr();
+if(!S.weights) S.weights={};
+if(!S.program||!S.program.length) S.program=seedProgram();
+if(!S.foods){ const mig=(S.foodLib||[]).map(f=>({id:uid(),name:f.name,unit:'stuk',per:{calories:f.calories||0,protein:f.protein||0,carbs:f.carbs||0,fat:f.fat||0}})); S.foods=mig.length?mig:seedFoods(); }
+
+let expanded={}, pendingDel=null, pendingDelDay=null, confirmReset=false, showSettings=false, progEdit=false, kcalManual=false, foodsEdit=false, amountSheet=null, manualOpen=false;
+
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function parseDate(s){ const a=s.split('-').map(Number); return new Date(a[0],a[1]-1,a[2]); }
+function shiftDate(s,n){ const d=parseDate(s); d.setDate(d.getDate()+n); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function fmtDate(s){ const t=todayStr(); if(s===t)return'Vandaag'; if(s===shiftDate(t,-1))return'Gisteren'; if(s===shiftDate(t,1))return'Morgen'; return parseDate(s).toLocaleDateString('nl-BE',{weekday:'short',day:'numeric',month:'short'}).replace('.',''); }
+function weekDates(ref){ const d=parseDate(ref); const o=(d.getDay()+6)%7; d.setDate(d.getDate()-o); const out=[]; for(let i=0;i<7;i++){ out.push(d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())); d.setDate(d.getDate()+1);} return out; }
+function gv(id){ const el=document.getElementById(id); return el?el.value:''; }
+function r1(x){ return Math.round(x*10)/10; }
+
+function totalsFor(date){ const a=S.nutrition[date]||[]; return a.reduce((x,e)=>({calories:x.calories+(+e.calories||0),protein:x.protein+(+e.protein||0),carbs:x.carbs+(+e.carbs||0),fat:x.fat+(+e.fat||0)}),{calories:0,protein:0,carbs:0,fat:0}); }
+function weekCount(){ const wk=weekDates(todayStr()); let l=0,u=0; S.workouts.forEach(s=>{ if(!wk.includes(s.date))return; if(s.type==='Lower')l++; else if(s.type==='Upper')u++; }); return {lower:l,upper:u}; }
+function sessionVolume(s){ return s.exercises.reduce((a,e)=>a+e.sets.reduce((y,st)=>y+(+st.weight||0)*(+st.reps||0),0),0); }
+function totalSets(s){ return s.exercises.reduce((a,e)=>a+e.sets.length,0); }
+function lastTimeFor(name){ const lc=name.toLowerCase(); const m=S.workouts.filter(s=>s.exercises.some(e=>e.name.toLowerCase()===lc)).sort((a,b)=> a.date<b.date?1:a.date>b.date?-1:b.id-a.id)[0]; if(!m)return null; const ex=m.exercises.find(e=>e.name.toLowerCase()===lc); return {date:m.date,sets:ex.sets}; }
+function buildSetsForExercise(name,targetSets){ const last=lastTimeFor(name); const target=Math.max(1,targetSets||1); const count=(last&&last.sets.length)?Math.max(target,last.sets.length):target; const out=[]; for(let i=0;i<count;i++){ const src=(last&&last.sets.length)?(last.sets[i]||last.sets[last.sets.length-1]):null; out.push({id:uid(),weight:src&&src.weight!=null?src.weight:'',reps:src&&src.reps!=null?src.reps:'',rir:src&&src.rir!=null?src.rir:''}); } return out; }
+function exNames(){ const set={}; S.program.forEach(d=>d.exercises.forEach(e=>set[e.name]=1)); S.workouts.forEach(s=>s.exercises.forEach(e=>set[e.name]=1)); return Object.keys(set); }
+function foodById(id){ return S.foods.find(f=>f.id==id); }
+function foodKcal(f){ return Math.round((f.per.protein||0)*4+(f.per.carbs||0)*4+(f.per.fat||0)*9); }
+function scaled(f,amount){ const k=f.unit==='100g'?(amount/100):amount; return {calories:Math.round((f.per.calories||0)*k),protein:r1((f.per.protein||0)*k),carbs:r1((f.per.carbs||0)*k),fat:r1((f.per.fat||0)*k)}; }
+
+function harvestEditor(){ if(!S.activeWorkout)return; S.activeWorkout.exercises.forEach(ex=>ex.sets.forEach(st=>{ const w=document.querySelector('input[data-ex="'+ex.id+'"][data-set="'+st.id+'"][data-field="weight"]'); const r=document.querySelector('input[data-ex="'+ex.id+'"][data-set="'+st.id+'"][data-field="reps"]'); const i=document.querySelector('input[data-ex="'+ex.id+'"][data-set="'+st.id+'"][data-field="rir"]'); if(w)st.weight=w.value; if(r)st.reps=r.value; if(i)st.rir=i.value; })); }
+function harvestProgram(){ S.program.forEach(day=>{ const dn=document.querySelector('input[data-pday="'+day.id+'"][data-pf="name"]:not([data-pex])'); if(dn)day.name=dn.value; day.exercises.forEach(ex=>{ const n=document.querySelector('input[data-pday="'+day.id+'"][data-pex="'+ex.id+'"][data-pf="name"]'); const s=document.querySelector('input[data-pday="'+day.id+'"][data-pex="'+ex.id+'"][data-pf="sets"]'); const r=document.querySelector('input[data-pday="'+day.id+'"][data-pex="'+ex.id+'"][data-pf="rir"]'); if(n)ex.name=n.value; if(s)ex.sets=+s.value||0; if(r)ex.rir=+r.value||0; }); }); }
+function harvestFoods(){ S.foods.forEach(f=>{ const n=document.querySelector('input[data-fd="'+f.id+'"][data-ff="name"]'); const p=document.querySelector('input[data-fd="'+f.id+'"][data-ff="protein"]'); const c=document.querySelector('input[data-fd="'+f.id+'"][data-ff="carbs"]'); const fa=document.querySelector('input[data-fd="'+f.id+'"][data-ff="fat"]'); if(n)f.name=n.value; if(p)f.per.protein=+p.value||0; if(c)f.per.carbs=+c.value||0; if(fa)f.per.fat=+fa.value||0; f.per.calories=foodKcal(f); }); }
+function harvestAll(){ if(S.activeWorkout)harvestEditor(); if(progEdit)harvestProgram(); if(foodsEdit)harvestFoods(); }
+
+/* builders */
+function gaugeHTML(label,v,t,cv){ const pct=t>0?Math.min(100,(v/t)*100):0; const over=v>t; const rem=Math.round(t-v); const col=over?'var(--danger)':'var('+cv+')'; return '<div class="gauge"><div class="gauge-label">'+label+'</div><div class="gauge-val"><span class="mono num-big">'+Math.round(v)+'</span><span class="mono num-target">/ '+t+'</span></div><div class="bar"><div class="bar-fill" style="width:'+pct+'%;background:'+col+'"></div></div><div class="mono gauge-rem" style="color:'+(over?'var(--danger)':'var(--faint)')+'">'+(over?('+'+Math.abs(rem)+' over'):(rem+' te gaan'))+'</div></div>'; }
+function pipsHTML(d,t,cv){ let h='<div class="pips">'; for(let i=0;i<t;i++)h+='<span class="pip" style="background:'+(i<d?'var('+cv+')':'var(--line)')+'"></span>'; return h+'</div>'; }
+function gaugeGrid(t,tg){ return '<div class="gauge-grid">'+gaugeHTML('Calorieën',t.calories,tg.calories,'--fuel')+gaugeHTML('Eiwit',t.protein,tg.protein,'--fuel')+gaugeHTML('Koolhydraten',t.carbs,tg.carbs,'--fuel')+gaugeHTML('Vet',t.fat,tg.fat,'--fuel')+'</div>'; }
+
+function dashboardHTML(){
+  const t=totalsFor(todayStr()),tg=S.targets,wc=weekCount();
+  const trained=S.workouts.filter(s=>s.date===todayStr()); const did=trained.length>0;
+  const longDate=parseDate(todayStr()).toLocaleDateString('nl-BE',{day:'numeric',month:'long'});
+  return '<div class="stack"><div class="section-label">'+fmtDate(todayStr())+' · '+longDate+'</div>'+gaugeGrid(t,tg)
+    +'<div style="display:flex;justify-content:flex-end;margin-top:-4px"><button class="linkbtn faint press" data-action="open-settings">'+icon('pencil',13,'var(--faint)')+' Doelen aanpassen</button></div>'
+    +'<button class="btn btn-fuel full press" data-action="goto" data-tab="voeding">'+icon('plus',17,'#10130F')+' Eten loggen</button>'
+    +'<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span class="section-label">Deze week</span><button class="linkbtn press" data-action="goto" data-tab="training">Naar training →</button></div>'
+    +'<div style="display:flex;flex-direction:column;gap:12px">'+weekRowHTML('Lower',wc.lower,S.weekly.lower)+weekRowHTML('Upper',wc.upper,S.weekly.upper)+'</div>'
+    +'<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:9px;background:'+(did?'var(--train-soft)':'var(--in)')+';display:grid;place-items:center">'+icon('flame',17,did?'var(--train)':'var(--faint)')+'</div><span style="font-size:13.5px;color:'+(did?'var(--text)':'var(--muted)')+'">'+(did?('Vandaag getraind — '+trained.map(s=>esc(s.name||s.type)).join(', ')):'Vandaag nog niet getraind')+'</span></div></div></div>';
+}
+function weekRowHTML(label,d,t){ return '<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:var(--text);width:64px">'+label+'</span>'+pipsHTML(d,t,'--train')+'<span class="mono" style="font-size:13px;color:var(--muted);width:40px;text-align:right">'+d+'/'+t+'</span></div>'; }
+
+function trainingHTML(){ if(S.activeWorkout) return sessionHTML(); if(progEdit) return programHTML(); return trainingHomeHTML(); }
+function trainingHomeHTML(){
+  const tiles=S.program.map(d=>'<button class="daycard press" data-action="day-start" data-day="'+d.id+'"><div><div style="font-size:16px;font-weight:700;color:var(--chalk)">'+esc(d.name)+'</div><div class="mono" style="font-size:12px;color:var(--muted);margin-top:3px">'+d.exercises.length+' oefeningen</div></div><div style="display:flex;align-items:center;gap:10px"><span class="badge">'+d.type+'</span>'+icon('cr',18,'var(--faint)')+'</div></button>').join('');
+  let hist; if(S.workouts.length===0){ hist='<div class="empty">Nog geen sessies gelogd. Kies hierboven een dag.</div>'; } else { hist='<div style="display:flex;flex-direction:column;gap:10px">'+S.workouts.map(histCardHTML).join('')+'</div>'; }
+  return '<div class="stack"><div style="display:flex;align-items:center;justify-content:space-between"><span class="section-label">Kies je trainingsdag</span><button class="linkbtn press" data-action="prog-open">'+icon('pencil',14,'var(--train)')+' Programma</button></div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px">'+tiles+'</div><div class="section-label">Geschiedenis</div>'+hist+'</div>';
+}
+function histCardHTML(s){
+  const open=expanded[s.id]; let body='';
+  if(open){
+    body='<div style="padding:0 14px 14px">'+s.exercises.map(e=>'<div style="border-top:1px solid var(--line);padding:10px 0"><div style="font-size:13.5px;color:var(--text);margin-bottom:5px">'+esc(e.name)+'</div><div class="mono" style="font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px">'+e.sets.map(setStr).join('')+'</div></div>').join('');
+    body+='<div style="margin-top:10px">'+(pendingDel==s.id?'<div style="display:flex;gap:8px"><button class="btn btn-danger sm press" data-action="hist-del-confirm" data-id="'+s.id+'">'+icon('check',15,'#fff')+' Verwijderen</button><button class="btn btn-ghost sm press" data-action="hist-del-cancel">Annuleer</button></div>':'<button class="linkbtn faint press" data-action="hist-del-ask" data-id="'+s.id+'">'+icon('trash',14,'var(--faint)')+' Verwijder sessie</button>')+'</div></div>';
+  }
+  return '<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden"><button class="press" data-action="hist-toggle" data-id="'+s.id+'" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;padding:14px;text-align:left"><div><div style="font-size:15px;font-weight:700;color:var(--chalk)">'+esc(s.name||s.type)+' <span style="color:var(--faint);font-weight:400;font-size:13px">· '+fmtDate(s.date)+'</span></div><div class="mono" style="font-size:12px;color:var(--muted);margin-top:3px">'+totalSets(s)+' sets · '+Math.round(sessionVolume(s))+' kg volume</div></div>'+icon(open?'cu':'cd',18,'var(--faint)')+'</button>'+body+'</div>';
+}
+function setStr(st){ const w=(+st.weight||0),r=(+st.reps||0); let s=w+'×'+r; if(st.rir!==''&&st.rir!=null&&st.rir!==undefined)s+='/'+st.rir+'R'; return '<span>'+s+'</span>'; }
+
+function sessionHTML(){
+  const w=S.activeWorkout;
+  const exs=w.exercises.map(ex=>{
+    const last=lastTimeFor(ex.name);
+    const hint=(ex.tSets||ex.tRir!=null)?'<div class="target-hint">Doel: '+(ex.tSets||'?')+' sets · RIR '+(ex.tRir!=null?ex.tRir:'?')+'</div>':'';
+    const lastHTML=last?'<div class="mono last-line">Vorige ('+fmtDate(last.date)+'): '+last.sets.map(st=>{const a=(+st.weight||0),b=(+st.reps||0);let z=a+'×'+b;if(st.rir!==''&&st.rir!=null)z+='/'+st.rir;return z;}).join('  ')+'</div>':'';
+    const head='<div class="set-head"><span class="sp"></span><span class="sh">Kg</span><span class="sh">Reps</span><span class="sh">RIR</span><span class="sp"></span></div>';
+    const rows=ex.sets.map((s,i)=>'<div class="set-row"><span class="mono setnum">'+(i+1)+'</span><div class="field"><input type="number" inputmode="decimal" step="0.5" class="mono" data-ex="'+ex.id+'" data-set="'+s.id+'" data-field="weight" value="'+esc(s.weight)+'" placeholder="kg"></div><div class="field"><input type="number" inputmode="numeric" class="mono" data-ex="'+ex.id+'" data-set="'+s.id+'" data-field="reps" value="'+esc(s.reps)+'" placeholder="reps"></div><div class="field"><input type="number" inputmode="numeric" class="mono" data-ex="'+ex.id+'" data-set="'+s.id+'" data-field="rir" value="'+esc(s.rir==null?'':s.rir)+'" placeholder="RIR"></div><button class="iconlink press" data-action="wo-delset" data-ex="'+ex.id+'" data-set="'+s.id+'" aria-label="Set verwijderen">'+icon('trash',15,'var(--faint)')+'</button></div>').join('');
+    return '<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:'+((hint||last)?6:12)+'px"><span style="font-size:16px;font-weight:700;color:var(--chalk)">'+esc(ex.name)+'</span><button class="iconlink press" data-action="wo-delex" data-ex="'+ex.id+'" aria-label="Oefening verwijderen">'+icon('x',17,'var(--faint)')+'</button></div>'+hint+lastHTML+head+rows+'<button class="linkbtn press" style="margin-top:4px" data-action="wo-addset" data-ex="'+ex.id+'">'+icon('plus',15,'var(--train)')+' Set toevoegen</button></div>';
+  }).join('');
+  return '<div class="stack"><div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:20px;font-weight:700;color:var(--chalk)">'+esc(w.name||w.type)+'</div><div style="font-size:12.5px;color:var(--faint)">'+fmtDate(w.date)+'</div></div><button class="btn btn-ghost sm press" data-action="wo-cancel">Sluiten</button></div>'+exs
+    +'<div style="background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:14px"><div style="display:flex;gap:8px"><input id="ex-input" class="text-input" placeholder="Extra oefening…" autocomplete="off"><button class="btn btn-train sm press" data-action="wo-addex">'+icon('plus',16,'#10130F')+'</button></div><div id="ex-sug" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px"></div></div>'
+    +'<button class="btn btn-train full press" data-action="wo-save">'+icon('save',17,'#10130F')+' Sessie opslaan</button></div>';
+}
+
+function programHTML(){
+  const days=S.program.map(d=>{
+    const exs=d.exercises.map(e=>'<div class="pex"><input class="nm" data-pday="'+d.id+'" data-pex="'+e.id+'" data-pf="name" value="'+esc(e.name)+'" placeholder="oefening"><div class="field mini"><input type="number" inputmode="numeric" class="mono" data-pday="'+d.id+'" data-pex="'+e.id+'" data-pf="sets" value="'+e.sets+'" aria-label="sets"></div><div class="field mini"><input type="number" inputmode="numeric" class="mono" data-pday="'+d.id+'" data-pex="'+e.id+'" data-pf="rir" value="'+e.rir+'" aria-label="rir"></div><button class="iconlink press" data-action="pe-exup" data-pday="'+d.id+'" data-ex="'+e.id+'" aria-label="Omhoog">'+icon('cu',15,'var(--faint)')+'</button><button class="iconlink press" data-action="pe-exdown" data-pday="'+d.id+'" data-ex="'+e.id+'" aria-label="Omlaag">'+icon('cd',15,'var(--faint)')+'</button><button class="iconlink press" data-action="pe-delex" data-pday="'+d.id+'" data-ex="'+e.id+'" aria-label="Verwijderen">'+icon('x',15,'var(--faint)')+'</button></div>').join('');
+    const delBlock=pendingDelDay==d.id?'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-danger sm press" data-action="pe-delday-confirm" data-pday="'+d.id+'">'+icon('check',15,'#fff')+' Dag verwijderen</button><button class="btn btn-ghost sm press" data-action="pe-delday-cancel">Annuleer</button></div>':'';
+    return '<div class="pday"><div style="display:flex;gap:8px;align-items:center"><input class="pname" data-pday="'+d.id+'" data-pf="name" value="'+esc(d.name)+'"><button class="iconlink press" data-action="pe-delday-ask" data-pday="'+d.id+'" aria-label="Dag verwijderen">'+icon('trash',16,'var(--faint)')+'</button></div>'
+      +'<div style="display:flex;gap:8px;margin-top:10px"><button class="tchip press'+(d.type==='Lower'?' on':'')+'" data-action="pe-type" data-pday="'+d.id+'" data-type="Lower">Lower</button><button class="tchip press'+(d.type==='Upper'?' on':'')+'" data-action="pe-type" data-pday="'+d.id+'" data-type="Upper">Upper</button></div>'
+      +'<div class="set-head" style="margin-top:12px"><span style="flex:1"></span><span style="width:46px;text-align:center;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)">Sets</span><span style="width:46px;text-align:center;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)">RIR</span><span style="width:96px"></span></div>'
+      +exs+'<div class="pex"><input id="padd-'+d.id+'" class="nm" placeholder="Oefening toevoegen…" autocomplete="off"><button class="btn btn-train sm press" data-action="pe-addex" data-pday="'+d.id+'">'+icon('plus',16,'#10130F')+'</button></div>'+delBlock+'</div>';
+  }).join('');
+  return '<div class="stack"><div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px"><button class="iconlink press" data-action="prog-done" aria-label="Terug">'+icon('cl',20,'var(--text)')+'</button><span style="font-size:20px;font-weight:700;color:var(--chalk)">Programma</span></div><button class="btn btn-train sm press" data-action="prog-done">'+icon('check',16,'#10130F')+' Klaar</button></div>'
+    +'<div class="target-hint">Sets &amp; RIR per oefening zijn je richtdoelen. Tijdens het loggen vul je je echte gewicht, reps en RIR in.</div>'+days
+    +'<button class="btn btn-ghost full press" data-action="pe-addday">'+icon('plus',16,'var(--text)')+' Trainingsdag toevoegen</button></div>';
+}
+
+/* voeding */
+function foodResultsHTML(filter){
+  filter=(filter||'').trim().toLowerCase();
+  let list=S.foods.slice(); if(filter) list=list.filter(f=>f.name.toLowerCase().includes(filter)); list=list.slice(0,12);
+  if(list.length===0) return '<div class="target-hint" style="margin:4px 0 0">Niets gevonden. Maak het aan via "Beheer".</div>';
+  return list.map(f=>{ const u=f.unit==='100g'?'100 g':'stuk'; return '<button class="row press" data-action="food-pick" data-id="'+f.id+'" style="width:100%;cursor:pointer;text-align:left"><div style="min-width:0"><div style="font-size:14px;color:var(--chalk);margin-bottom:3px">'+esc(f.name)+'</div><div class="mono" style="font-size:11.5px;color:var(--muted)">per '+u+': '+foodKcal(f)+' kcal · E'+(f.per.protein||0)+' · K'+(f.per.carbs||0)+' · V'+(f.per.fat||0)+'</div></div>'+icon('plus',16,'var(--fuel)')+'</button>'; }).join('');
+}
+function voedingHTML(){
+  if(foodsEdit) return foodsManagerHTML();
+  const d=S.foodDate,t=totalsFor(d),tg=S.targets; const entries=S.nutrition[d]||[]; const nextDis=d>=todayStr();
+  let list; if(entries.length===0){ list='<div class="empty">Nog niets gelogd voor deze dag.</div>'; } else { list='<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">'+entries.map(e=>{ const amt=e.amount?(' · '+e.amount+(e.unit==='g'?' g':'×')):''; return '<div class="row"><div style="min-width:0"><div style="font-size:14px;color:var(--chalk);margin-bottom:3px">'+esc(e.name)+amt+'</div><div class="mono" style="font-size:11.5px;color:var(--muted)">'+Math.round(e.calories)+' kcal · E'+Math.round(e.protein)+' · K'+Math.round(e.carbs)+' · V'+Math.round(e.fat)+'</div></div><button class="iconlink press" data-action="food-del" data-id="'+e.id+'" aria-label="Verwijderen">'+icon('trash',16,'var(--faint)')+'</button></div>'; }).join('')+'</div>'; }
+  const manual=manualOpen?'<div class="card" style="margin-top:10px"><input id="f-name" class="text-input" placeholder="Naam" style="margin-bottom:11px" autocomplete="off"><div class="gauge-grid">'+numField('eiwit (g)','f-pro')+numField('kh (g)','f-carb')+numField('vet (g)','f-fat')+numField('kcal','f-cal')+'</div><div class="target-hint" style="margin:9px 0 0">kcal volgt automatisch uit de macro\'s — overschrijfbaar.</div><button class="btn btn-fuel full press" style="margin-top:12px" data-action="food-add">'+icon('plus',17,'#10130F')+' Eenmalig toevoegen</button></div>':'';
+  return '<div class="stack"><div class="datebar"><button class="arrow press" data-action="date-prev" aria-label="Vorige dag">'+icon('cl',20)+'</button><span style="font-size:15px;font-weight:700;color:var(--chalk)">'+fmtDate(d)+'</span><button class="arrow press'+(nextDis?' disabled':'')+'" '+(nextDis?'':'data-action="date-next"')+' aria-label="Volgende dag">'+icon('cr',20)+'</button></div>'
+    +gaugeGrid(t,tg)
+    +'<div style="display:flex;justify-content:flex-end;margin-top:-4px"><button class="linkbtn faint press" data-action="open-settings">'+icon('pencil',13,'var(--faint)')+' Doelen aanpassen</button></div>'
+    +'<div class="card"><div class="section-label" style="margin-bottom:10px">Voedingsmiddel toevoegen</div>'
+    +'<div class="field"><span style="color:var(--faint);display:inline-flex">'+icon('search',16,'var(--faint)')+'</span><input id="food-search" placeholder="Zoek in mijn voedingsmiddelen…" autocomplete="off"></div>'
+    +'<div id="food-results" style="display:flex;flex-direction:column;gap:8px;margin-top:10px">'+foodResultsHTML('')+'</div>'
+    +'<div style="display:flex;justify-content:space-between;margin-top:12px"><button class="linkbtn fuel press" data-action="foods-open">'+icon('pencil',14,'var(--fuel)')+' Beheer voedingsmiddelen</button><button class="linkbtn faint press" data-action="toggle-manual">handmatig '+(manualOpen?'▲':'▾')+'</button></div>'
+    +manual+'</div>'
+    +'<div><div class="section-label">Gelogd ('+entries.length+')</div>'+list+'</div></div>';
+}
+function numField(label,id){ return '<div><div class="lbl">'+label+'</div><div class="field"><input id="'+id+'" type="number" inputmode="decimal" class="mono" placeholder="0"></div></div>'; }
+
+function foodsManagerHTML(){
+  const rows=S.foods.map(f=>'<div class="pday"><div style="display:flex;gap:8px;align-items:center"><input class="pname" data-fd="'+f.id+'" data-ff="name" value="'+esc(f.name)+'"><button class="iconlink press" data-action="fd-del" data-fid="'+f.id+'" aria-label="Verwijderen">'+icon('trash',16,'var(--faint)')+'</button></div>'
+    +'<div style="display:flex;gap:8px;margin-top:10px"><button class="tchip press'+(f.unit==='100g'?' on':'')+'" data-action="fd-unit" data-fid="'+f.id+'" data-unit="100g">per 100 g</button><button class="tchip press'+(f.unit==='stuk'?' on':'')+'" data-action="fd-unit" data-fid="'+f.id+'" data-unit="stuk">per stuk</button></div>'
+    +'<div class="gauge-grid" style="margin-top:12px">'+fdNum('eiwit (g)',f.id,'protein',f.per.protein)+fdNum('kh (g)',f.id,'carbs',f.per.carbs)+fdNum('vet (g)',f.id,'fat',f.per.fat)+'<div><div class="lbl">kcal (auto)</div><div class="field" style="opacity:.65"><input class="mono" value="'+foodKcal(f)+'" readonly></div></div></div></div>').join('');
+  return '<div class="stack"><div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px"><button class="iconlink press" data-action="foods-done" aria-label="Terug">'+icon('cl',20,'var(--text)')+'</button><span style="font-size:20px;font-weight:700;color:var(--chalk)">Voedingsmiddelen</span></div><button class="btn btn-fuel sm press" data-action="foods-done">'+icon('check',16,'#10130F')+' Klaar</button></div>'
+    +'<div class="target-hint">Geef de macro\'s in per 100 g of per stuk. kcal wordt automatisch berekend. Bij het loggen kies je het middel en vul je de hoeveelheid in.</div>'+rows
+    +'<div class="card"><div class="section-label" style="margin-bottom:10px">Nieuw voedingsmiddel</div><div style="display:flex;gap:8px"><input id="fd-new" class="text-input" placeholder="Naam, bv. Magere kwark" autocomplete="off"><button class="btn btn-fuel sm press" data-action="fd-add">'+icon('plus',16,'#10130F')+'</button></div></div></div>';
+}
+function fdNum(label,id,field,val){ return '<div><div class="lbl">'+label+'</div><div class="field"><input type="number" inputmode="decimal" class="mono" data-fd="'+id+'" data-ff="'+field+'" value="'+(val==null?'':val)+'" placeholder="0"></div></div>'; }
+
+function amtPreviewHTML(f,amount){ const sc=scaled(f,+amount||0); return 'kcal '+sc.calories+'   ·   E '+sc.protein+'   ·   K '+sc.carbs+'   ·   V '+sc.fat; }
+function amountSheetHTML(){
+  const f=foodById(amountSheet.foodId); if(!f) return '';
+  const amt=amountSheet.amount; const unitLabel=f.unit==='100g'?'gram':'stuks'; const perLabel=f.unit==='100g'?'Macro\'s per 100 g':'Macro\'s per stuk';
+  return '<div class="overlay" id="amt-overlay"><div class="sheet"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:19px;font-weight:800;color:var(--chalk)">'+esc(f.name)+'</span><button class="icon-btn press" data-action="amt-cancel" aria-label="Sluiten">'+icon('x',17,'var(--muted)')+'</button></div>'
+    +'<div class="target-hint">'+perLabel+': '+foodKcal(f)+' kcal · E'+(f.per.protein||0)+' · K'+(f.per.carbs||0)+' · V'+(f.per.fat||0)+'</div>'
+    +'<div class="lbl">Hoeveelheid ('+unitLabel+')</div><div class="field"><input id="amt-input" type="number" inputmode="decimal" class="mono" value="'+esc(amt)+'" placeholder="0"><span class="suffix mono" style="color:var(--fuel)">'+(f.unit==='100g'?'g':'×')+'</span></div>'
+    +'<div class="card" style="margin-top:14px;background:var(--in)"><div class="mono" id="amt-preview" style="font-size:13px;color:var(--fuel)">'+amtPreviewHTML(f,amt)+'</div></div>'
+    +'<button class="btn btn-fuel full press" style="margin-top:16px" data-action="amt-add">'+icon('plus',17,'#10130F')+' Toevoegen</button></div></div>';
+}
+
+function weekAvg(dates){ let s=0,n=0; dates.forEach(d=>{ const v=S.weights[d]; if(v!=null&&v!==''){ s+=+v; n++; } }); return n? s/n : null; }
+function gewichtHTML(){
+  const d=S.weightDate; const cur=S.weights[d]; const nextDis=d>=todayStr();
+  const tw=weekAvg(weekDates(todayStr())); const lw=weekAvg(weekDates(shiftDate(todayStr(),-7)));
+  let delta=''; if(tw!=null&&lw!=null){ const diff=r1(tw-lw); delta='<div class="mono" style="font-size:12px;color:var(--muted);margin-top:8px">'+(diff>=0?'+':'')+diff+' kg t.o.v. vorige week</div>'; }
+  const has=cur!=null&&cur!=='';
+  const dates=Object.keys(S.weights).filter(k=>{const v=S.weights[k];return v!=null&&v!=='';}).sort().reverse().slice(0,30);
+  let list; if(dates.length===0){ list='<div class="empty">Nog geen metingen.</div>'; } else { list='<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">'+dates.map(k=>'<div class="row"><button class="press" data-action="w-pick" data-date="'+k+'" style="background:none;border:none;cursor:pointer;text-align:left;padding:0;min-width:0;flex:1;display:flex;align-items:center;gap:12px"><span class="mono" style="font-size:15px;color:var(--chalk)">'+r1(+S.weights[k])+' kg</span><span style="font-size:12.5px;color:var(--faint)">'+fmtDate(k)+'</span></button><button class="iconlink press" data-action="w-del" data-date="'+k+'" aria-label="Verwijderen">'+icon('trash',16,'var(--faint)')+'</button></div>').join('')+'</div>'; }
+  return '<div class="stack">'
+    +'<div class="datebar"><button class="arrow press" data-action="wdate-prev" aria-label="Vorige dag">'+icon('cl',20)+'</button><span style="font-size:15px;font-weight:700;color:var(--chalk)">'+fmtDate(d)+'</span><button class="arrow press'+(nextDis?' disabled':'')+'" '+(nextDis?'':'data-action="wdate-next"')+' aria-label="Volgende dag">'+icon('cr',20)+'</button></div>'
+    +'<div class="card"><div class="lbl">Gewicht ('+fmtDate(d).toLowerCase()+')</div><div style="display:flex;gap:9px;align-items:stretch"><div class="field"><input id="w-input" type="number" inputmode="decimal" step="0.1" class="mono" value="'+(has?cur:'')+'" placeholder="kg" style="font-size:18px"></div><button class="btn btn-train press" data-action="w-save">'+icon('check',16,'#10130F')+' Bewaar</button></div>'+(has?'<button class="linkbtn faint press" style="margin-top:10px" data-action="w-del" data-date="'+d+'">'+icon('trash',13,'var(--faint)')+' Verwijder deze meting</button>':'')+'</div>'
+    +'<div class="card"><div class="section-label" style="margin-bottom:10px">Weekgemiddelde</div><div style="display:flex;justify-content:space-between;align-items:flex-end"><div><div class="mono num-big">'+(tw!=null?r1(tw):'—')+'</div><div style="font-size:11px;color:var(--faint);margin-top:3px">deze week (kg)</div></div><div style="text-align:right"><div class="mono" style="font-size:18px;color:var(--muted)">'+(lw!=null?r1(lw):'—')+'</div><div style="font-size:11px;color:var(--faint);margin-top:3px">vorige week</div></div></div>'+delta+'</div>'
+    +'<div><div class="section-label">Recente metingen</div>'+list+'</div></div>';
+}
+function settingsHTML(){
+  const t=S.targets,w=S.weekly;
+  const reset=confirmReset?'<div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:13px;color:var(--muted)">Dit wist je sessies en voedingslogs. Programma, voedingsmiddelen en doelen blijven behouden.</span><div style="display:flex;gap:9px"><button class="btn btn-danger press" data-action="reset-confirm">'+icon('trash',15,'#fff')+' Ja, wissen</button><button class="btn btn-ghost press" data-action="reset-cancel">Annuleer</button></div></div>':'<button class="linkbtn faint press" data-action="reset-ask">'+icon('trash',14,'var(--faint)')+' Sessies &amp; logs wissen</button>';
+  return '<div class="overlay" id="overlay"><div class="sheet"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><span style="font-size:19px;font-weight:800;color:var(--chalk)">Instellingen</span><button class="icon-btn press" data-action="close-settings" aria-label="Sluiten">'+icon('x',17,'var(--muted)')+'</button></div>'
+    +'<div class="section-label">Dagelijkse macro-doelen</div><div class="gauge-grid" style="margin:10px 0 22px">'+numFieldVal('calorieën','s-cal',t.calories)+numFieldVal('eiwit (g)','s-pro',t.protein)+numFieldVal('koolhydraten (g)','s-carb',t.carbs)+numFieldVal('vet (g)','s-fat',t.fat)+'</div>'
+    +'<div class="section-label">Wekelijkse split</div><div class="gauge-grid" style="margin:10px 0 22px">'+numFieldVal('lower / week','s-low',w.lower)+numFieldVal('upper / week','s-up',w.upper)+'</div>'
+    +'<button class="btn btn-train full press" data-action="settings-save">'+icon('check',17,'#10130F')+' Doelen opslaan</button>'
+    +'<div style="margin-top:24px"><div class="section-label">Back-up</div><div style="display:flex;gap:9px;margin:10px 0 8px"><button class="btn btn-ghost press" style="flex:1" data-action="export">'+icon('download',16,'var(--text)')+' Exporteren</button><button class="btn btn-ghost press" style="flex:1" data-action="import-click">'+icon('upload',16,'var(--text)')+' Importeren</button></div><div class="target-hint">Exporteer een back-upbestand (bewaar in Bestanden/iCloud). Importeren zet die terug — handig voor een nieuw toestel of als veiligheid.</div></div>'
+    +'<div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--line)">'+reset+'</div></div></div>';
+}
+function numFieldVal(label,id,val){ return '<div><div class="lbl">'+label+'</div><div class="field"><input id="'+id+'" type="number" inputmode="numeric" class="mono" value="'+val+'"></div></div>'; }
+
+function headerHTML(){ return '<header><div><div class="brand">Kracht<b>boek</b></div><div class="tag">training &amp; voeding 🍑</div></div><button class="icon-btn press" data-action="open-settings" aria-label="Instellingen">'+icon('gear',18,'var(--muted)')+'</button></header>'; }
+function navHTML(){ const items=[['vandaag','Vandaag','grid','var(--chalk)'],['training','Training','dumbbell','var(--train)'],['voeding','Voeding','food','var(--fuel)'],['gewicht','Gewicht','scale','#FF7EC7']]; return '<nav class="nav">'+items.map(it=>{ const a=S.tab===it[0]; const c=a?it[3]:'var(--faint)'; return '<button class="nav-btn press" data-action="tab" data-tab="'+it[0]+'">'+icon(it[2],21,c)+'<span style="color:'+c+';font-weight:'+(a?700:500)+'">'+it[1]+'</span></button>'; }).join('')+'</nav>'; }
+
+function viewHTML(){ if(S.tab==='training')return trainingHTML(); if(S.tab==='voeding')return voedingHTML(); if(S.tab==='gewicht')return gewichtHTML(); return dashboardHTML(); }
+function render(){ document.getElementById('app').innerHTML=headerHTML()+'<main>'+viewHTML()+'</main>'+navHTML()+(showSettings?settingsHTML():'')+(amountSheet?amountSheetHTML():''); }
+
+function recomputeKcal(){ if(kcalManual)return; const p=+gv('f-pro')||0,c=+gv('f-carb')||0,f=+gv('f-fat')||0; const cal=document.getElementById('f-cal'); if(cal){ const v=Math.round(p*4+c*4+f*9); cal.value=v?v:''; } }
+
+function addEntry(date,entry){ const n=Object.assign({},S.nutrition); n[date]=(n[date]||[]).concat([Object.assign({id:uid()},entry)]); S.nutrition=n; save(); }
+function addProgramExercise(dayId,name){ name=(name||'').trim(); if(!name)return; const day=S.program.find(d=>d.id==dayId); if(!day)return; day.exercises.push({id:uid(),name:name,sets:3,rir:3}); save(); render(); const i=document.getElementById('padd-'+dayId); if(i)i.focus(); }
+
+function doExport(){ try{ const blob=new Blob([JSON.stringify(S)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='krachtboek-backup-'+todayStr()+'.json'; document.body.appendChild(a); a.click(); setTimeout(function(){ try{document.body.removeChild(a);}catch(e){} URL.revokeObjectURL(url); },150); }catch(e){ alert('Export mislukt: '+e); } }
+function handleImport(e){ const file=e.target.files&&e.target.files[0]; e.target.value=''; if(!file)return; const reader=new FileReader(); reader.onload=function(ev){ try{ const parsed=JSON.parse(ev.target.result); if(!parsed||typeof parsed!=='object'||!('targets' in parsed)){ alert('Dit lijkt geen geldig Krachtboek-bestand.'); return; } if(!confirm('Huidige gegevens vervangen door deze back-up?'))return; S=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),parsed); if(!S.foodDate)S.foodDate=todayStr(); if(!S.foods)S.foods=seedFoods(); if(!S.program||!S.program.length)S.program=seedProgram(); save(); showSettings=false; foodsEdit=false; amountSheet=null; render(); alert('Back-up geïmporteerd.'); }catch(err){ alert('Importeren mislukt: '+err); } }; reader.readAsText(file); }
+
+function handle(a,el){
+  switch(a){
+    case 'tab': harvestAll(); S.tab=el.dataset.tab; progEdit=false; foodsEdit=false; amountSheet=null; manualOpen=false; if(el.dataset.tab==='gewicht')S.weightDate=todayStr(); save(); render(); break;
+    case 'goto': harvestAll(); S.tab=el.dataset.tab; progEdit=false; foodsEdit=false; amountSheet=null; manualOpen=false; if(el.dataset.tab==='voeding'){S.foodDate=todayStr();kcalManual=false;} save(); render(); break;
+    case 'open-settings': harvestAll(); showSettings=true; confirmReset=false; render(); break;
+    case 'close-settings': showSettings=false; confirmReset=false; render(); break;
+    case 'settings-save': S.targets={calories:+gv('s-cal')||0,protein:+gv('s-pro')||0,carbs:+gv('s-carb')||0,fat:+gv('s-fat')||0}; S.weekly={lower:+gv('s-low')||0,upper:+gv('s-up')||0}; showSettings=false; save(); render(); break;
+    case 'reset-ask': confirmReset=true; render(); break;
+    case 'reset-cancel': confirmReset=false; render(); break;
+    case 'reset-confirm': S.nutrition={}; S.workouts=[]; S.activeWorkout=null; expanded={}; confirmReset=false; showSettings=false; save(); render(); break;
+    case 'export': doExport(); break;
+    case 'import-click': { const i=document.getElementById('import-file'); if(i)i.click(); break; }
+
+    case 'date-prev': S.foodDate=shiftDate(S.foodDate,-1); kcalManual=false; save(); render(); break;
+    case 'date-next': if(S.foodDate<todayStr()){ S.foodDate=shiftDate(S.foodDate,1); kcalManual=false; save(); render(); } break;
+    case 'toggle-manual': manualOpen=!manualOpen; kcalManual=false; render(); break;
+    case 'food-add': { const name=(gv('f-name')||'').trim(); if(!name){ const el2=document.getElementById('f-name'); if(el2)el2.focus(); break; } addEntry(S.foodDate,{name:name,calories:+gv('f-cal')||0,protein:+gv('f-pro')||0,carbs:+gv('f-carb')||0,fat:+gv('f-fat')||0}); kcalManual=false; save(); render(); break; }
+    case 'food-del': { const n=Object.assign({},S.nutrition); n[S.foodDate]=(n[S.foodDate]||[]).filter(e=>e.id!=el.dataset.id); S.nutrition=n; save(); render(); break; }
+    case 'food-pick': { const f=foodById(el.dataset.id); if(!f)break; amountSheet={foodId:f.id, amount:(f.unit==='100g'?'100':'1')}; render(); break; }
+    case 'amt-cancel': amountSheet=null; render(); break;
+    case 'amt-add': { const f=foodById(amountSheet.foodId); if(!f){amountSheet=null;render();break;} const amt=+gv('amt-input')||0; if(amt<=0){ const i=document.getElementById('amt-input'); if(i)i.focus(); break; } const sc=scaled(f,amt); addEntry(S.foodDate,{name:f.name,foodId:f.id,amount:amt,unit:(f.unit==='100g'?'g':'×'),calories:sc.calories,protein:sc.protein,carbs:sc.carbs,fat:sc.fat}); amountSheet=null; save(); render(); break; }
+
+    case 'wdate-prev': S.weightDate=shiftDate(S.weightDate,-1); render(); break;
+    case 'wdate-next': if(S.weightDate<todayStr()){ S.weightDate=shiftDate(S.weightDate,1); render(); } break;
+    case 'w-save': { const v=gv('w-input'); if(v===''||v==null){ const i=document.getElementById('w-input'); if(i)i.focus(); break; } const n=Object.assign({},S.weights); n[S.weightDate]=+v; S.weights=n; save(); render(); break; }
+    case 'w-del': { const n=Object.assign({},S.weights); delete n[el.dataset.date]; S.weights=n; save(); render(); break; }
+    case 'w-pick': S.weightDate=el.dataset.date; render(); break;
+
+    case 'foods-open': harvestAll(); foodsEdit=true; render(); break;
+    case 'foods-done': harvestFoods(); foodsEdit=false; save(); render(); break;
+    case 'fd-add': harvestFoods(); { const v=gv('fd-new'); if((v||'').trim()){ S.foods.push({id:uid(),name:v.trim(),unit:'100g',per:{calories:0,protein:0,carbs:0,fat:0}}); } save(); render(); const i=document.getElementById('fd-new'); if(i)i.focus(); break; }
+    case 'fd-del': harvestFoods(); S.foods=S.foods.filter(f=>f.id!=el.dataset.fid); save(); render(); break;
+    case 'fd-unit': harvestFoods(); { const f=foodById(el.dataset.fid); if(f)f.unit=el.dataset.unit; save(); render(); break; }
+
+    case 'day-start': { const day=S.program.find(d=>d.id==el.dataset.day); if(!day)break; S.activeWorkout={dayId:day.id,name:day.name,type:day.type,date:todayStr(),exercises:day.exercises.map(ex=>({id:uid(),name:ex.name,tSets:ex.sets,tRir:ex.rir,sets:buildSetsForExercise(ex.name,ex.sets)}))}; progEdit=false; save(); render(); break; }
+    case 'wo-cancel': S.activeWorkout=null; save(); render(); break;
+    case 'wo-addex': harvestEditor(); { const v=gv('ex-input'); if((v||'').trim()){ S.activeWorkout.exercises.push({id:uid(),name:v.trim(),sets:[{id:uid(),weight:'',reps:'',rir:''}]}); } save(); render(); const i=document.getElementById('ex-input'); if(i)i.focus(); break; }
+    case 'wo-addex-sug': harvestEditor(); S.activeWorkout.exercises.push({id:uid(),name:el.dataset.name,sets:[{id:uid(),weight:'',reps:'',rir:''}]}); save(); render(); break;
+    case 'wo-addset': harvestEditor(); { const ex=S.activeWorkout.exercises.find(e=>e.id==el.dataset.ex); if(ex)ex.sets.push({id:uid(),weight:'',reps:'',rir:''}); save(); render(); break; }
+    case 'wo-delset': harvestEditor(); { const ex=S.activeWorkout.exercises.find(e=>e.id==el.dataset.ex); if(ex)ex.sets=ex.sets.filter(s=>s.id!=el.dataset.set); save(); render(); break; }
+    case 'wo-delex': harvestEditor(); S.activeWorkout.exercises=S.activeWorkout.exercises.filter(e=>e.id!=el.dataset.ex); save(); render(); break;
+    case 'wo-save': harvestEditor(); { const w=S.activeWorkout; const clean={id:uid(),dayId:w.dayId,name:w.name,type:w.type,date:w.date,exercises:w.exercises.map(e=>({id:e.id,name:e.name,sets:e.sets.filter(s=>s.weight!==''||s.reps!=='')})).filter(e=>e.sets.length>0)}; if(clean.exercises.length===0){ S.activeWorkout=null; save(); render(); break; } S.workouts=[clean].concat(S.workouts); S.activeWorkout=null; save(); render(); break; }
+
+    case 'hist-toggle': expanded[el.dataset.id]=!expanded[el.dataset.id]; pendingDel=null; render(); break;
+    case 'hist-del-ask': pendingDel=el.dataset.id; render(); break;
+    case 'hist-del-cancel': pendingDel=null; render(); break;
+    case 'hist-del-confirm': S.workouts=S.workouts.filter(w=>w.id!=el.dataset.id); pendingDel=null; save(); render(); break;
+
+    case 'prog-open': progEdit=true; pendingDelDay=null; render(); break;
+    case 'prog-done': harvestProgram(); progEdit=false; pendingDelDay=null; save(); render(); break;
+    case 'pe-type': harvestProgram(); { const d=S.program.find(x=>x.id==el.dataset.pday); if(d)d.type=el.dataset.type; save(); render(); break; }
+    case 'pe-addex': harvestProgram(); addProgramExercise(el.dataset.pday, gv('padd-'+el.dataset.pday)); break;
+    case 'pe-delex': harvestProgram(); { const d=S.program.find(x=>x.id==el.dataset.pday); if(d)d.exercises=d.exercises.filter(e=>e.id!=el.dataset.ex); save(); render(); break; }
+    case 'pe-exup': harvestProgram(); { const d=S.program.find(x=>x.id==el.dataset.pday); if(d){ const i=d.exercises.findIndex(e=>e.id==el.dataset.ex); if(i>0){ const tmp=d.exercises[i-1]; d.exercises[i-1]=d.exercises[i]; d.exercises[i]=tmp; } } save(); render(); break; }
+    case 'pe-exdown': harvestProgram(); { const d=S.program.find(x=>x.id==el.dataset.pday); if(d){ const i=d.exercises.findIndex(e=>e.id==el.dataset.ex); if(i>=0&&i<d.exercises.length-1){ const tmp=d.exercises[i+1]; d.exercises[i+1]=d.exercises[i]; d.exercises[i]=tmp; } } save(); render(); break; }
+    case 'pe-addday': harvestProgram(); S.program.push({id:uid(),name:'Nieuwe dag',type:'Lower',exercises:[]}); save(); render(); break;
+    case 'pe-delday-ask': pendingDelDay=el.dataset.pday; render(); break;
+    case 'pe-delday-cancel': pendingDelDay=null; render(); break;
+    case 'pe-delday-confirm': harvestProgram(); S.program=S.program.filter(d=>d.id!=el.dataset.pday); pendingDelDay=null; save(); render(); break;
+  }
+}
+
+document.body.addEventListener('click',function(e){ if(e.target){ if(e.target.id==='overlay'){ handle('close-settings'); return; } if(e.target.id==='amt-overlay'){ handle('amt-cancel'); return; } } const act=e.target.closest('[data-action]'); if(!act)return; handle(act.dataset.action,act); });
+document.body.addEventListener('input',function(e){ const t=e.target; if(!t)return; if(t.id==='ex-input'){ updateSuggestions(t.value); return; } if(t.id==='food-search'){ const box=document.getElementById('food-results'); if(box)box.innerHTML=foodResultsHTML(t.value); return; } if(t.id==='amt-input'){ if(amountSheet){ amountSheet.amount=t.value; const f=foodById(amountSheet.foodId); const box=document.getElementById('amt-preview'); if(box&&f)box.textContent=amtPreviewHTML(f,t.value); } return; } if(t.id==='f-pro'||t.id==='f-carb'||t.id==='f-fat'){ kcalManual=false; recomputeKcal(); return; } if(t.id==='f-cal'){ kcalManual=true; return; } });
+document.body.addEventListener('keydown',function(e){ const t=e.target; if(!t)return; if(t.id==='ex-input'&&e.key==='Enter'){ e.preventDefault(); harvestEditor(); if((t.value||'').trim()){ S.activeWorkout.exercises.push({id:uid(),name:t.value.trim(),sets:[{id:uid(),weight:'',reps:'',rir:''}]}); save(); render(); const i=document.getElementById('ex-input'); if(i)i.focus(); } } else if(t.id&&t.id.indexOf('padd-')===0&&e.key==='Enter'){ e.preventDefault(); harvestProgram(); addProgramExercise(t.id.slice(5), t.value); } else if(t.id==='w-input'&&e.key==='Enter'){ e.preventDefault(); handle('w-save',{dataset:{}}); } });
+document.body.addEventListener('change',function(e){ if(e.target&&e.target.id==='import-file') handleImport(e); });
+
+function updateSuggestions(text){ const box=document.getElementById('ex-sug'); if(!box)return; text=(text||'').trim().toLowerCase(); if(!text){ box.innerHTML=''; return; } const sug=exNames().filter(e=>e.toLowerCase().includes(text)&&e.toLowerCase()!==text).slice(0,5); box.innerHTML=sug.map(s=>'<button class="chip chip-train press" data-action="wo-addex-sug" data-name="'+esc(s)+'">'+esc(s)+'</button>').join(''); }
+
+render();
+</script>
+</body>
+</html>
