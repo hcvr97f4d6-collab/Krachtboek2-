@@ -312,7 +312,7 @@ function settingsHTML(){
 }
 function numFieldVal(label,id,val){ return '<div><div class="lbl">'+label+'</div><div class="field"><input id="'+id+'" type="number" inputmode="numeric" class="mono" value="'+val+'"></div></div>'; }
 
-function headerHTML(){ return '<header><div><div class="brand">Kracht<b>boek</b></div><div class="tag">training &amp; voeding 🍑</div></div><button class="icon-btn press" data-action="open-settings" aria-label="Instellingen">'+icon('gear',18,'var(--muted)')+'</button></header>'; }
+function headerHTML(){ return '<header><div><div class="brand">Kracht<b>boek</b></div><div class="tag">training &amp; voeding </div></div><button class="icon-btn press" data-action="open-settings" aria-label="Instellingen">'+icon('gear',18,'var(--muted)')+'</button></header>'; }
 function navHTML(){ const items=[['vandaag','Vandaag','grid','var(--chalk)'],['training','Training','dumbbell','var(--train)'],['voeding','Voeding','food','var(--fuel)'],['gewicht','Gewicht','scale','#FF7EC7']]; return '<nav class="nav">'+items.map(it=>{ const a=S.tab===it[0]; const c=a?it[3]:'var(--faint)'; return '<button class="nav-btn press" data-action="tab" data-tab="'+it[0]+'">'+icon(it[2],21,c)+'<span style="color:'+c+';font-weight:'+(a?700:500)+'">'+it[1]+'</span></button>'; }).join('')+'</nav>'; }
 
 function viewHTML(){ if(S.tab==='training')return trainingHTML(); if(S.tab==='voeding')return voedingHTML(); if(S.tab==='gewicht')return gewichtHTML(); return dashboardHTML(); }
